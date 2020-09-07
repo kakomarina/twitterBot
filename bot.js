@@ -1,13 +1,21 @@
 console.log('Ola!');
 
+require('dotenv').config()
 var Twit = require('twit'); 
 var fs = require('fs');
-var config = require('./config');
+var parser = require('./utils.js');
+var config = {
+	consumer_key: 		process.env.CONSUMER_KEY,
+  	consumer_secret:      process.env.CONSUMER_SECRET,
+  	access_token:         process.env.ACCESS_TOKEN,
+  	access_token_secret:  process.env.ACCESS_TOKEN_SECRET,
+ 	timeout_ms:           60*1000,  //optional HTTP request timeout to apply to all requests.
+} 
 var T = new Twit(config);
 
 
-setInterval(retweetRecycle, 1000*60*60*24);
-setInterval(tweetIt, 1000*60);
+// setInterval(retweet, 1000*60*60*24);
+setInterval(tweetLyrics, 60000 * 15);
 
 function sleep(milliseconds) {
   var start = new Date().getTime();
@@ -19,7 +27,7 @@ function sleep(milliseconds) {
 }
 
 // find latest tweet according the query 'q' in params
-function retweetRecycle() {
+function retweet() {
     var params = {
         q: '#recycle',  // REQUIRED
         result_type: 'popular',
@@ -28,7 +36,7 @@ function retweetRecycle() {
     }
 
     T.get('search/tweets', params, function(err, data) {
-      	if(data.statuses[0] === undefined) console.log('Nenhum tweet encontrado');
+      	if(data.statuses[0] === undefined) console.log('No tweet found');
       	// if there no errors
         else if (!err) {
 	        for(var i = 0; i < 5; i++){  	
@@ -39,10 +47,10 @@ function retweetRecycle() {
 	                id: retweetId
 	            }, function(err, response) {
 	                if (err) {
-	                    console.log('Hmmm, tweet duplicado?');
+	                    console.log('Error retweeting: ' + err);
 	                }
 	                else if (response) {
-	                    console.log('Retweeted!!!');
+	                    console.log('Retweeted!');
 	                }
 	            });
 	            sleep(1000*60*5);
@@ -50,7 +58,7 @@ function retweetRecycle() {
         }
         // if unable to Search a tweet
         else {
-          console.log('Algo deu errado com a busca');
+          console.log('Something went wrong with the search: ' + err);
         }
     });
 }
@@ -71,12 +79,33 @@ function tweetIt(){
 			T.post('statuses/update', tweet, tweeted);
 
 			function tweeted(err, data, response){
-				if(!err) console.log("Funcionou!");
-				else console.log("Nao deu certo");
+				if(!err) console.log("Tweet posted");
+				else console.log("Something went wrong: " + err);
 				tweetCount++;
 			}
     	}
 	})
+}
+
+
+async function tweetLyrics() {
+	// choosing random lyric file
+	filename = 'playlist1/lyrics' + Math.floor((Math.random() * 1000) % 72 + 1)
+	const lyrics = await parser.parseLyrics(filename);
+	// random lyric verse 
+	var rand = (Math.random() * 1000) % lyrics.length; 
+
+	var tweet = {
+		status: lyrics[Math.floor(rand)]
+	}
+	console.log(tweet.status)
+	T.post('statuses/update', tweet, tweeted);
+
+	function tweeted(err, data, response) {
+		if(!err) console.log("Tweet posted");
+		else console.log("Something went wrong: " + err);
+	}
+
 }
 
 //testing how to tweet media, still incoporating it to the bot
@@ -95,8 +124,8 @@ function tweetMedia(){
 	      var params = { status: 'me explaining to my friends that reusing is important', media_ids: [mediaIdStr] }
 	 
 	      T.post('statuses/update', params, function (err, data, response) {
-	        if(!err) console.log("Funcionou");
-	        else console.log("Nao deu certo");
+	        if(!err) console.log("Tweet posted");
+	        else console.log("Something went wrong: " + err);
 	      })
 	    }
 	  })
