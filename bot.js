@@ -14,8 +14,8 @@ var config = {
 var T = new Twit(config);
 
 
-// setInterval(retweet, 1000*60*60*24);
-setInterval(tweetLyrics, 60000 * 15);
+tweetLyrics();
+setInterval(tweetLyrics, 30*60*1000);
 
 function sleep(milliseconds) {
   var start = new Date().getTime();
