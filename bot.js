@@ -15,7 +15,7 @@ var T = new Twit(config);
 
 
 tweetLyrics();
-setInterval(tweetLyrics, 30*60*1000);
+setInterval(tweetLyrics, 60*60*1000);
 
 function sleep(milliseconds) {
   var start = new Date().getTime();
