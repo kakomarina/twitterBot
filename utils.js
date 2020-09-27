@@ -15,11 +15,18 @@ async function parseLyrics(filename) {
     var count = 0;
       
     for await (const line of file) {
-        if (line[0] != undefined && line[0] == line[0].toUpperCase()) {
+        if (line[0] == undefined) {
+            continue;
+        } 
+        
+        if (count > 0 && lyrics[count-1].slice(-1) == ",") {
+            lyrics[count - 1] = lyrics[count - 1] + " " + line;
+        }
+        else if (line[0] == line[0].toLowerCase()) {
+            lyrics[count -1] = lyrics[count - 1] + " " + line;
+        } else {
             lyrics.push(line);
             count++;
-        } else if (line[0] != undefined) {
-            lyrics[count -1] = lyrics[count - 1] + " " + line;
         }
     }
 

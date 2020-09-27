@@ -90,7 +90,7 @@ function tweetIt(){
 
 async function tweetLyrics() {
 	// choosing random lyric file
-	filename = 'playlist1/lyrics' + Math.floor((Math.random() * 1000) % 72 + 1)
+	filename = 'lyrics2/lyrics' + Math.floor((Math.random() * 100000) % 504 + 1)
 	const lyrics = await parser.parseLyrics(filename);
 	// random lyric verse 
 	var rand = (Math.random() * 1000) % lyrics.length; 

@@ -21,14 +21,17 @@ let getUrlsFromLetras = async () => {
 let getLyricsFromLetras = async () => {
     let urls = await getUrlsFromLetras();
     const browser = await puppeteer.launch()
+    const page = await browser.newPage()
     let count = 0
 
 
     for await (url of urls) {
         count++
         console.log('https://www.letras.mus.br' + url)
-        const page = await browser.newPage()
-        await page.goto('https://www.letras.mus.br' + url)
+        await page.goto('https://www.letras.mus.br' + url, {
+          waitUntil: 'load',
+          timeout: 0
+        })
 
         let result = await page.evaluate(() => {
             let lyrics = ""
@@ -39,11 +42,13 @@ let getLyricsFromLetras = async () => {
             return lyrics
         })
 
-        fs.writeFile("lyrics/lyrics" + count, result, "UTF-8", (err) => {
+        fs.writeFile("lyrics2/lyrics" + count, result, "UTF-8", (err) => {
             if (err) console.log(err)
             else console.log("file saved as lyrics" + count)
         })
     }
+
+    browser.close()
 }
 
 let getUrlsFromPlaylist = async () => {
@@ -97,10 +102,10 @@ let getLyricsFromVagalume = async () => {
 }
 
 
-// getLyricsFromLetras().then(() => {
-//   console.log("Finished")
-// })
-
-getLyricsFromVagalume().then(() => {
+getLyricsFromLetras().then(() => {
   console.log("Finished")
 })
+
+// getLyricsFromVagalume().then(() => {
+//   console.log("Finished")
+// })
